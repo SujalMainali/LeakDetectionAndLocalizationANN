@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 class LeakDataset(Dataset):
     def __init__(self, csv_file, input_columns, output_columns, normalize=True, exclude=None):
         """
-        Initializes the dataset from a CSV file with optional normalization (on inputs and outputs).
+        Initializes the dataset from a CSV file with optional normalization.
 
         Parameters:
         - csv_file (str): Path to the CSV file.
@@ -47,7 +47,7 @@ class LeakDataset(Dataset):
                 self.output_stds[col] = col_std
                 self.outputs[col] = (self.outputs[col] - col_mean) / col_std
 
-        # Convert to numpy
+        # Convert to numpy arrays
         self.inputs = self.inputs.values  # Convert pandas DataFrame to numpy
         self.outputs = self.outputs.values  # Convert pandas DataFrame to numpy
 
@@ -60,3 +60,17 @@ class LeakDataset(Dataset):
 
     def __getitem__(self, index):
         return self.inputs[index], self.outputs[index]
+
+    def get_normalization_params(self):
+        """
+        Returns the normalization parameters.
+
+        Returns:
+        - dict: A dictionary containing means and standard deviations for inputs and outputs.
+        """
+        return {
+            "input_means": self.input_means,
+            "input_stds": self.input_stds,
+            "output_means": self.output_means,
+            "output_stds": self.output_stds,
+        }
