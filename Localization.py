@@ -72,9 +72,11 @@ if __name__ == "__main__":
     num_epochs = 20
     for epoch in range(num_epochs):
         train_loss = train_model(model, train_loader, optimizer, criterion, device)
-        val_loss = validate_model(model, val_loader, criterion, device)
+        val_loss, val_output_losses = validate_model(model, val_loader, criterion, device)
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
+        print(f"Validation Loss Breakdown: {val_output_losses}")
+        
     # Save the trained model with normalization parameters
     normalization_params = dataset.get_normalization_params()
 
