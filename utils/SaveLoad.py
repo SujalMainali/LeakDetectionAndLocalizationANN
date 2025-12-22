@@ -43,8 +43,8 @@ def load_model_with_params(model, filepath, device):
     - model (torch.nn.Module): The model with loaded weights.
     - normalization_params (dict): Dictionary containing normalization parameters.
     """
-    # Load the checkpoint
-    checkpoint = torch.load(filepath, map_location=device)
+    # Load the checkpoint with weights_only=False (full checkpoint loading)
+    checkpoint = torch.load(filepath, map_location=device, weights_only=False)
 
     # Load the model weights
     model.load_state_dict(checkpoint["model_state_dict"])

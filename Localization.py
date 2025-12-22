@@ -46,6 +46,7 @@ if __name__ == "__main__":
     input_dim = 10  # Number of pressure head readings per input sample
     hidden_dims = [45, 40, 45]  # Custom hidden layers configuration
     output_dim = 3 
+    model_save_path = "models/best_leak_localization_model.pth"
 
     csv_file = "leak_data.csv"  # Path to your CSV file
     input_columns = ["Node1", "Node2", "Node3", "Node4", "Node5"]  # Define input columns
@@ -68,24 +69,32 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.MSELoss()
 
+    best_val_loss = float("inf")
+    # Get the normalization parameters
+    normalization_params = dataset.get_normalization_params()
+    output_means = normalization_params["output_means"]
+    output_stds = normalization_params["output_stds"]
     # Training loop
     num_epochs = 20
     for epoch in range(num_epochs):
         train_loss = train_model(model, train_loader, optimizer, criterion, device)
-        val_loss, val_output_losses = validate_model(model, val_loader, criterion, device)
+        val_loss, normalized_output_losses, denormalized_output_losses = validate_model(
+            model, val_loader, criterion, device, output_means, output_stds
+        )
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
-        print(f"Validation Loss Breakdown: {val_output_losses}")
+        print("Validation Loss Breakdown (Normalized):", normalized_output_losses)
+        print("Validation Loss Breakdown (Denormalized, Real Units):", denormalized_output_losses)
         
-    # Save the trained model with normalization parameters
-    normalization_params = dataset.get_normalization_params()
-
-    save_model_with_params(
-        model=model,
-        filepath="models/leak_localization_with_norm_params.pth",
-        input_means=normalization_params["input_means"],
-        input_stds=normalization_params["input_stds"],
-        output_means=normalization_params["output_means"],
-        output_stds=normalization_params["output_stds"],
-    )
-
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            # Save the best model
+            save_model_with_params(
+                model=model,
+                filepath=model_save_path,
+                input_means=normalization_params["input_means"],
+                input_stds=normalization_params["input_stds"],
+                output_means=normalization_params["output_means"],
+                output_stds=normalization_params["output_stds"],
+            )
+            print(f"Best model saved at epoch {epoch + 1} with validation loss: {best_val_loss:.4f}")

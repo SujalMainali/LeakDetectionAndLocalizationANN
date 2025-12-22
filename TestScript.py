@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 from utils.SaveLoad import load_model_with_params
-from ..Localization import LeakLocalizationNN
+from Localization import LeakLocalizationNN
 
 def normalize_inputs(input_data, input_means, input_stds):
     """
