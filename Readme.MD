@@ -1,7 +1,5 @@
 # Leak Detection and Localization using Neural Networks
 
-![Leak Detection Logo](https://path/to/your/logo.png) <!-- Optional: Add a project logo here -->
-
 ---
 
 ## 📖 Project Description
@@ -10,7 +8,7 @@ This project leverages **Artificial Neural Networks (ANNs)** to address the chal
 1. Detect whether or not a leak exists (`leak_detection`).
 2. Predict the location of the leak (`X_coor`, `Y_coor`) as well as its severity in terms of the `burst_size`.
 
-The dataset provided includes hourly measurements of **pressure readings** at specific nodes in the system, and the goal of the neural network is to learn the relationship between these inputs and the corresponding leaks.
+The dataset used includes hourly measurements of **pressure readings** at specific nodes in the system, and the goal of the neural network is to learn the relationship between these inputs and the corresponding leaks.
 
 The project uses **PyTorch** to build and train the ANN and **scikit-learn** for testing simple models (like random forest).
 
@@ -33,7 +31,7 @@ LeakDetectionAndLocalizationANN/
 │   ├── TrainValidate.py               # Functions for training and validating the ANN
 │   ├── SaveLoad.py                    # Functions for saving and loading models with normalization params
 │
-├── NeuralNetTraining.py               # Main script for training and saving the model
+├── Localization.py                    # Main script for ANN architecture, training and saving the model
 ├── TestScript.py                      # Script for model inference on test cases
 ├── requirements.txt                   # Project dependencies
 └── README.md                          # Project documentation
@@ -80,7 +78,7 @@ pip install -r requirements.txt
 
 To train the ANN on the supplied dataset (`leak_data.csv`), run the training script:
 ```bash
-python NeuralNetTraining.py
+python Localization.py
 ```
 - After training, the model will be saved along with its normalization parameters in the `models/` folder:
   ```
@@ -104,7 +102,7 @@ If you only need to classify whether a leak exists (without localization), a sim
 ## 🗂️ Dataset Format
 
 ### 💾 Input Features (Columns):
-- `Node1`, `Node2`, `Node3`, `Node4`, `Node5` (hourly pressure readings at different nodes)
+- `Node1_Hour0`,`Node1_Hour1`,......., `Node2_Hour0`,`Node2_Hour1`,..........., `Node3_Hour0`,......(hourly pressure readings at different nodes)
 
 ### 🎯 Output Targets:
 - `leak_detection`:
@@ -116,25 +114,6 @@ If you only need to classify whether a leak exists (without localization), a sim
 
 ### Normalization:
 Input and output columns are normalized during training. These parameters are saved with the model for reusability during testing.
-
----
-
-## 📊 Results
-
-### ANN for Leak Localization:
-- MSE Loss after training: ~0.24 (normalized scale)
-- Average Prediction Accuracy (Denormalized):
-  - `X_coor`: ±4.9 units
-  - `Y_coor`: ±3.2 units
-  - `burst_size`: ±1.8 units
-
-### Random Forest for Leak Detection:
-- Leak Classification Accuracy: ~93%
-- Confusion Matrix:
-  ```
-  [[100   5]  --> True Negative, False Positive
-   [  8 125]] --> False Negative, True Positive
-  ```
 
 ---
 
@@ -163,30 +142,3 @@ When training is completed, the following files are created:
   - Contains trained weights and normalization parameters.
 - **Test Predictions**: `test_predictions.csv`
   - Outputs the model’s predictions in CSV format.
-
----
-
-## 🛠️ Future Improvements
-- Add support for distributed training.
-- Experiment with alternate architectures like CNNs or Transformer layers.
-- Add post-processing logic to refine predictions based on spatial constraints.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions to improve this project! Feel free to open an issue or submit a pull request.
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
-
----
-
-## 📧 Contact Information
-
-For questions, feel free to reach out:
-- **Name**: [Your Name]
-- **Email**: [YourEmail@example.com]

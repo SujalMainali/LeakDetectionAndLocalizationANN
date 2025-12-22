@@ -1,3 +1,5 @@
+import csv
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -43,10 +45,28 @@ class LeakLocalizationNN(nn.Module):
         return x
 
 if __name__ == "__main__":
-    input_dim = 10  # Number of pressure head readings per input sample
+    loss_log_path = "models/training_losses_run12.csv"
+
+    # Create CSV file and write header if it doesn't exist
+    if not os.path.exists(loss_log_path):
+        with open(loss_log_path, mode="w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                "epoch",
+                "train_loss",
+                "val_loss",
+                "val_leak_x_loss_norm",
+                "val_leak_y_loss_norm",
+                "val_leak_size_loss_norm",
+                "val_leak_x_loss_real",
+                "val_leak_y_loss_real",
+                "val_leak_size_loss_real"
+            ])
+
+    input_dim = 504  # Number of pressure head readings per input sample
     hidden_dims = [45, 40, 45]  # Custom hidden layers configuration
     output_dim = 3 
-    model_save_path = "models/best_leak_localization_model.pth"
+    model_save_path = "models/best_leak_localization_model_run13.pth"
 
     csv_file = "leak_data.csv"  # Path to your CSV file
     input_columns = ["Node1", "Node2", "Node3", "Node4", "Node5"]  # Define input columns
@@ -85,6 +105,22 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
         print("Validation Loss Breakdown (Normalized):", normalized_output_losses)
         print("Validation Loss Breakdown (Denormalized, Real Units):", denormalized_output_losses)
+        print("_______________________________________________________________________________________")
+
+        with open(loss_log_path, mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                epoch + 1,
+                train_loss,
+                val_loss,
+                normalized_output_losses["leak_x"],
+                normalized_output_losses["leak_y"],
+                normalized_output_losses["leak_size_lps"],
+                denormalized_output_losses["leak_x"],
+                denormalized_output_losses["leak_y"],
+                denormalized_output_losses["leak_size_lps"],
+            ])
+
         
         if val_loss < best_val_loss:
             best_val_loss = val_loss
@@ -98,3 +134,4 @@ if __name__ == "__main__":
                 output_stds=normalization_params["output_stds"],
             )
             print(f"Best model saved at epoch {epoch + 1} with validation loss: {best_val_loss:.4f}")
+            print("---------------------------------------------------------------------------------------")
