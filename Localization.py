@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from utils.Dataset import LeakDataset
 from utils.TrainValidate import train_model, validate_model
 from utils.SaveLoad import save_model_with_params
+from utils.Seed import set_seed
 
 
 class LeakLocalizationNN(nn.Module):
@@ -45,7 +46,9 @@ class LeakLocalizationNN(nn.Module):
         return x
 
 if __name__ == "__main__":
-    loss_log_path = "models/training_losses_run12.csv"
+    seed = 42  # Set your seed value
+    set_seed(seed)
+    loss_log_path = "models/training_losses_run13.csv"
 
     # Create CSV file and write header if it doesn't exist
     if not os.path.exists(loss_log_path):
